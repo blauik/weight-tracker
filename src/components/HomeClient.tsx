@@ -39,6 +39,11 @@ export default function HomeClient() {
     setEntries([]);
   };
 
+  const handleUpdateProfile = (newProfile: UserProfile, newEntries: DailyEntry[]) => {
+    setProfile(newProfile);
+    setEntries(newEntries);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -64,6 +69,7 @@ export default function HomeClient() {
       entries={entries}
       setEntries={setEntries}
       onReset={handleReset}
+      onProfileUpdate={handleUpdateProfile}
     />
   );
 }

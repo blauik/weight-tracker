@@ -69,7 +69,7 @@ export default function OnboardingForm({ onComplete }: Props) {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
             WeightFlow
           </h1>
-          <p className="text-gray-500 mt-1">Inteligentní sledování váhy</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Inteligentní sledování váhy</p>
         </div>
 
         {/* Progress Steps */}
@@ -81,8 +81,8 @@ export default function OnboardingForm({ onComplete }: Props) {
                   i < step
                     ? "bg-emerald-500 text-white"
                     : i === step
-                    ? "bg-emerald-500/20 text-emerald-400 ring-2 ring-emerald-500/50"
-                    : "bg-gray-800 text-gray-600"
+                    ? "bg-emerald-500/20 text-emerald-500 dark:text-emerald-400 ring-2 ring-emerald-500/50"
+                    : "bg-gray-300 dark:bg-gray-800 text-gray-500 dark:text-gray-600"
                 }`}
               >
                 {i < step ? (
@@ -94,7 +94,7 @@ export default function OnboardingForm({ onComplete }: Props) {
                 )}
               </div>
               {i < steps.length - 1 && (
-                <div className={`w-8 h-0.5 rounded ${i < step ? "bg-emerald-500" : "bg-gray-800"}`} />
+                <div className={`w-8 h-0.5 rounded ${i < step ? "bg-emerald-500" : "bg-gray-300 dark:bg-gray-800"}`} />
               )}
             </div>
           ))}
@@ -103,14 +103,14 @@ export default function OnboardingForm({ onComplete }: Props) {
         {/* Step Content */}
         <div className="glass p-8 animate-slide-up">
           <div className="mb-6">
-            <h2 className="text-xl font-semibold text-gray-100">{steps[step].title}</h2>
-            <p className="text-sm text-gray-500 mt-1">{steps[step].subtitle}</p>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{steps[step].title}</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{steps[step].subtitle}</p>
           </div>
 
           {step === 0 && (
             <div className="space-y-5 animate-fade-in">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Jméno</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Jméno</label>
                 <input
                   type="text"
                   value={name}
@@ -121,7 +121,7 @@ export default function OnboardingForm({ onComplete }: Props) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Pohlaví</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Pohlaví</label>
                 <div className="grid grid-cols-2 gap-3">
                   {(["male", "female"] as Gender[]).map((g) => (
                     <button
@@ -129,8 +129,8 @@ export default function OnboardingForm({ onComplete }: Props) {
                       onClick={() => setGender(g)}
                       className={`p-4 rounded-xl border-2 transition-all duration-200 ${
                         gender === g
-                          ? "border-emerald-500 bg-emerald-500/10 text-emerald-400"
-                          : "border-gray-700/50 bg-gray-800/30 text-gray-400 hover:border-gray-600"
+                          ? "border-emerald-500 bg-emerald-500/10 text-emerald-500 dark:text-emerald-400"
+                          : "border-gray-300 dark:border-gray-700/50 bg-gray-100 dark:bg-gray-800/30 text-gray-700 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-600"
                       }`}
                     >
                       <div className="text-2xl mb-1">{g === "male" ? "♂" : "♀"}</div>
@@ -145,7 +145,7 @@ export default function OnboardingForm({ onComplete }: Props) {
           {step === 1 && (
             <div className="space-y-5 animate-fade-in">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Věk</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Věk</label>
                 <div className="relative">
                   <input
                     type="number"
@@ -155,11 +155,11 @@ export default function OnboardingForm({ onComplete }: Props) {
                     className="input-base pr-12"
                     autoFocus
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">let</span>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 text-sm">let</span>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Výška</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Výška</label>
                 <div className="relative">
                   <input
                     type="number"
@@ -168,7 +168,7 @@ export default function OnboardingForm({ onComplete }: Props) {
                     placeholder="180"
                     className="input-base pr-12"
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">cm</span>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 text-sm">cm</span>
                 </div>
               </div>
             </div>
@@ -177,7 +177,7 @@ export default function OnboardingForm({ onComplete }: Props) {
           {step === 2 && (
             <div className="space-y-5 animate-fade-in">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Aktuální váha</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Aktuální váha</label>
                 <div className="relative">
                   <input
                     type="number"
@@ -188,11 +188,11 @@ export default function OnboardingForm({ onComplete }: Props) {
                     className="input-base pr-12"
                     autoFocus
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">kg</span>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 text-sm">kg</span>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Cílová váha</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Cílová váha</label>
                 <div className="relative">
                   <input
                     type="number"
@@ -202,7 +202,7 @@ export default function OnboardingForm({ onComplete }: Props) {
                     placeholder="75.0"
                     className="input-base pr-12"
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">kg</span>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 dark:text-gray-400 text-sm">kg</span>
                 </div>
               </div>
               {+startWeight > 0 && +targetWeight > 0 && +targetWeight >= +startWeight && (
@@ -220,13 +220,13 @@ export default function OnboardingForm({ onComplete }: Props) {
                   className={`w-full text-left p-4 rounded-xl border-2 transition-all duration-200 ${
                     activityLevel === opt.value
                       ? "border-emerald-500 bg-emerald-500/10"
-                      : "border-gray-700/50 bg-gray-800/30 hover:border-gray-600"
+                      : "border-gray-300 dark:border-gray-700/50 bg-gray-100 dark:bg-gray-800/30 hover:border-gray-400 dark:hover:border-gray-600"
                   }`}
                 >
-                  <div className={`font-medium ${activityLevel === opt.value ? "text-emerald-400" : "text-gray-300"}`}>
+                  <div className={`font-medium ${activityLevel === opt.value ? "text-emerald-500 dark:text-emerald-400" : "text-gray-900 dark:text-gray-300"}`}>
                     {opt.label}
                   </div>
-                  <div className="text-sm text-gray-500 mt-0.5">{opt.desc}</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-0.5">{opt.desc}</div>
                 </button>
               ))}
             </div>

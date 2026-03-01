@@ -4,6 +4,7 @@ import {
   CalorieInfo,
   ProjectionData,
   ActivityLevel,
+  WeeklyAverage,
 } from "@/types";
 
 const ACTIVITY_MULTIPLIERS: Record<ActivityLevel, number> = {
@@ -62,7 +63,12 @@ export function generateDateRange(startDate: string, days: number): string[] {
 export function generateInitialEntries(profile: UserProfile): DailyEntry[] {
   const totalDays = calculateTotalDays(profile);
   const dates = generateDateRange(profile.startDate, totalDays);
-  return dates.map((date) => ({ date, weight: null }));
+  return dates.map((date, index) => ({
+    date,
+    // First day (index 0) = startWeight, others null
+    weight: index === 0 ? profile.startWeight : null,
+    note: index === 0 ? "Výchozí váha" : undefined,
+  }));
 }
 
 export function getFilledEntries(entries: DailyEntry[]): DailyEntry[] {
@@ -230,4 +236,127 @@ export function calculateTotalCaloriesToBurn(profile: UserProfile): number {
 export function calculateCaloriesBurned(profile: UserProfile, currentWeight: number): number {
   const kgLost = profile.startWeight - currentWeight;
   return Math.round(Math.max(0, kgLost * KCAL_PER_KG));
+}
+
+/**
+ * Calculate moving average for smoothing weight trend
+ * Returns array of same length as entries, with null for insufficient data points
+ */
+export function calculateMovingAverage(entries: DailyEntry[], window: number = 7): (number | null)[] {
+  const result: (number | null)[] = [];
+
+  for (let i = 0; i < entries.length; i++) {
+    // Find the last `window` non-null weights up to and including current index
+    const validWeights: number[] = [];
+
+    for (let j = i; j >= 0 && validWeights.length < window; j--) {
+      if (entries[j].weight !== null) {
+        validWeights.push(entries[j].weight!);
+      }
+    }
+
+    // Need at least `window` data points for moving average
+    if (validWeights.length >= window) {
+      const avg = validWeights.reduce((sum, w) => sum + w, 0) / validWeights.length;
+      result.push(Math.round(avg * 100) / 100);
+    } else {
+      result.push(null);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Calculate weekly averages of weights
+ * @param entries - All daily entries (sorted by date)
+ * @param startDate - Start date of tracking (from profile)
+ * @returns Array of weekly averages, sorted from oldest to newest
+ */
+export function calculateWeeklyAverages(
+  entries: DailyEntry[],
+  startDate: string
+): WeeklyAverage[] {
+  const filled = getFilledEntries(entries);
+
+  if (filled.length < 7) {
+    return [];  // Need at least 7 entries
+  }
+
+  const startDateTime = new Date(startDate).getTime();
+  const weeks: WeeklyAverage[] = [];
+
+  // Group entries by weeks
+  const weekGroups = new Map<number, DailyEntry[]>();
+
+  for (const entry of filled) {
+    const entryTime = new Date(entry.date).getTime();
+    const daysSinceStart = Math.floor((entryTime - startDateTime) / (1000 * 60 * 60 * 24));
+    const weekNum = Math.floor(daysSinceStart / 7);
+
+    if (!weekGroups.has(weekNum)) {
+      weekGroups.set(weekNum, []);
+    }
+    weekGroups.get(weekNum)!.push(entry);
+  }
+
+  // Calculate averages for each week
+  const sortedWeekNums = Array.from(weekGroups.keys()).sort((a, b) => a - b);
+
+  for (let i = 0; i < sortedWeekNums.length; i++) {
+    const weekNum = sortedWeekNums[i];
+    const weekEntries = weekGroups.get(weekNum)!;
+
+    // Calculate average
+    const sum = weekEntries.reduce((acc, e) => acc + e.weight!, 0);
+    const average = sum / weekEntries.length;
+
+    // Start and end date of week
+    const weekStartDate = new Date(startDate);
+    weekStartDate.setDate(weekStartDate.getDate() + weekNum * 7);
+    const weekEndDate = new Date(weekStartDate);
+    weekEndDate.setDate(weekEndDate.getDate() + 6);
+
+    // Trend compared to previous week
+    let trend: "down" | "up" | "stable" | null = null;
+    let changeFromPrevious: number | null = null;
+
+    if (i > 0) {
+      const prevWeek = weeks[i - 1];
+      const diff = average - prevWeek.averageWeight;
+      changeFromPrevious = Math.round(diff * 100) / 100;
+
+      if (Math.abs(diff) < 0.1) {
+        trend = "stable";
+      } else if (diff < 0) {
+        trend = "down";
+      } else {
+        trend = "up";
+      }
+    }
+
+    weeks.push({
+      weekNumber: weekNum + 1,  // 1-indexed
+      label: `Týden ${weekNum + 1}`,
+      startDate: weekStartDate.toISOString().split("T")[0],
+      endDate: weekEndDate.toISOString().split("T")[0],
+      averageWeight: Math.round(average * 100) / 100,
+      entryCount: weekEntries.length,
+      trend,
+      changeFromPrevious,
+    });
+  }
+
+  return weeks;
+}
+
+/**
+ * Get current weekly average (most recent completed week)
+ */
+export function getCurrentWeeklyAverage(
+  entries: DailyEntry[],
+  startDate: string
+): WeeklyAverage | null {
+  const weeks = calculateWeeklyAverages(entries, startDate);
+  return weeks.length > 0 ? weeks[weeks.length - 1] : null;
 }

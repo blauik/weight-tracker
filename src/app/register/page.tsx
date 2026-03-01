@@ -87,7 +87,7 @@ export default function RegisterPage() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
             WeightFlow
           </h1>
-          <p className="text-gray-500 mt-1">Vytvořte si účet zdarma</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Vytvořte si účet zdarma</p>
         </div>
 
         <div className="glass p-8 animate-slide-up">
@@ -99,7 +99,7 @@ export default function RegisterPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
+              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                 Jméno
               </label>
               <input
@@ -114,7 +114,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
+              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                 Email
               </label>
               <input
@@ -129,7 +129,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
+              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                 Heslo
               </label>
               <input
@@ -145,7 +145,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
+              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                 Potvrzení hesla
               </label>
               <input
@@ -168,11 +168,11 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-500">
+          <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
             Už máte účet?{" "}
             <Link
               href="/login"
-              className="text-emerald-400 hover:text-emerald-300 font-medium"
+              className="text-emerald-500 dark:text-emerald-400 hover:text-emerald-400 dark:hover:text-emerald-300 font-medium"
             >
               Přihlaste se
             </Link>

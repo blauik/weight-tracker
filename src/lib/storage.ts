@@ -45,3 +45,16 @@ export async function exportData(): Promise<string> {
   const state = await loadState();
   return JSON.stringify(state, null, 2);
 }
+
+export async function updateTargetWeight(newTargetWeight: number): Promise<void> {
+  const res = await fetch("/api/profile/target", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ newTargetWeight }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.error || "Failed to update target weight");
+  }
+}

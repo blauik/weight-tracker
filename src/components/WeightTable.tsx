@@ -81,7 +81,7 @@ export default function WeightTable({ profile, entries, onUpdateEntry }: Props) 
         return {
           value: rounded,
           text: rounded > 0 ? `+${rounded.toFixed(2)}` : rounded.toFixed(2),
-          color: rounded < 0 ? "text-emerald-400" : rounded > 0 ? "text-red-400" : "text-gray-500",
+          color: rounded < 0 ? "text-emerald-500 dark:text-emerald-400" : rounded > 0 ? "text-red-400" : "text-gray-600 dark:text-gray-400",
         };
       }
     }
@@ -92,8 +92,8 @@ export default function WeightTable({ profile, entries, onUpdateEntry }: Props) 
     <div className="glass p-6 animate-slide-up">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-100">Denní záznamy</h3>
-          <p className="text-sm text-gray-500">Klikněte na řádek pro zadání váhy</p>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Denní záznamy</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">Klikněte na řádek pro zadání váhy</p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -103,7 +103,7 @@ export default function WeightTable({ profile, entries, onUpdateEntry }: Props) 
           >
             &larr;
           </button>
-          <span className="text-sm text-gray-500 min-w-[80px] text-center">
+          <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[80px] text-center">
             {page + 1} / {totalPages}
           </span>
           <button
@@ -117,15 +117,15 @@ export default function WeightTable({ profile, entries, onUpdateEntry }: Props) 
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-xs sm:text-sm">
           <thead>
-            <tr className="border-b border-gray-800">
-              <th className="text-left py-3 px-3 text-gray-500 font-medium text-xs uppercase tracking-wider">Den</th>
-              <th className="text-left py-3 px-3 text-gray-500 font-medium text-xs uppercase tracking-wider">Datum</th>
-              <th className="text-right py-3 px-3 text-gray-500 font-medium text-xs uppercase tracking-wider">Váha</th>
-              <th className="text-right py-3 px-3 text-gray-500 font-medium text-xs uppercase tracking-wider">Změna</th>
-              <th className="text-right py-3 px-3 text-gray-500 font-medium text-xs uppercase tracking-wider">Ideál</th>
-              <th className="text-right py-3 px-3 text-gray-500 font-medium text-xs uppercase tracking-wider">Rozdíl</th>
+            <tr className="border-b border-gray-300 dark:border-gray-800">
+              <th className="text-left py-2 px-2 sm:py-3 sm:px-3 text-gray-600 dark:text-gray-400 font-medium text-xs uppercase tracking-wider">Den</th>
+              <th className="text-left py-2 px-2 sm:py-3 sm:px-3 text-gray-600 dark:text-gray-400 font-medium text-xs uppercase tracking-wider">Datum</th>
+              <th className="text-right py-2 px-2 sm:py-3 sm:px-3 text-gray-600 dark:text-gray-400 font-medium text-xs uppercase tracking-wider">Váha</th>
+              <th className="text-right py-2 px-2 sm:py-3 sm:px-3 text-gray-600 dark:text-gray-400 font-medium text-xs uppercase tracking-wider">Změna</th>
+              <th className="hidden sm:table-cell text-right py-2 px-2 sm:py-3 sm:px-3 text-gray-600 dark:text-gray-400 font-medium text-xs uppercase tracking-wider">Ideál</th>
+              <th className="hidden sm:table-cell text-right py-2 px-2 sm:py-3 sm:px-3 text-gray-600 dark:text-gray-400 font-medium text-xs uppercase tracking-wider">Rozdíl</th>
             </tr>
           </thead>
           <tbody>
@@ -144,33 +144,33 @@ export default function WeightTable({ profile, entries, onUpdateEntry }: Props) 
                   key={entry.date}
                   ref={today ? todayRef : undefined}
                   onClick={() => past && !isEditing && startEdit(entry)}
-                  className={`border-b border-gray-800/50 transition-colors duration-150 ${
+                  className={`border-b border-gray-300/50 dark:border-gray-800/50 transition-colors duration-150 ${
                     today
                       ? "table-row-today"
                       : past
-                      ? "hover:bg-gray-800/30 cursor-pointer"
+                      ? "hover:bg-gray-200/30 dark:hover:bg-gray-800/30 cursor-pointer"
                       : "opacity-40"
-                  } ${isWeekend && !today ? "bg-gray-800/10" : ""}`}
+                  } ${isWeekend && !today ? "bg-gray-200/10 dark:bg-gray-800/10" : ""}`}
                 >
-                  <td className="py-2.5 px-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-600 text-xs font-mono w-6">#{dayNum}</span>
-                      <span className={`text-xs ${today ? "text-emerald-400 font-bold" : "text-gray-500"}`}>
+                  <td className="py-2 px-2 sm:py-2.5 sm:px-3">
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <span className="text-gray-600 dark:text-gray-600 text-xs font-mono w-5 sm:w-6">#{dayNum}</span>
+                      <span className={`text-xs ${today ? "text-emerald-500 dark:text-emerald-400 font-bold" : "text-gray-600 dark:text-gray-400"}`}>
                         {getDayOfWeek(entry.date)}
                       </span>
                     </div>
                   </td>
-                  <td className="py-2.5 px-3">
-                    <span className={today ? "text-emerald-400 font-medium" : "text-gray-300"}>
+                  <td className="py-2 px-2 sm:py-2.5 sm:px-3">
+                    <span className={`text-xs sm:text-sm ${today ? "text-emerald-500 dark:text-emerald-400 font-medium" : "text-gray-700 dark:text-gray-300"}`}>
                       {formatDate(entry.date)}
                     </span>
                     {today && (
-                      <span className="ml-2 text-xs px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded-full">
+                      <span className="ml-1 sm:ml-2 text-xs px-1.5 py-0.5 bg-emerald-500/20 text-emerald-500 dark:text-emerald-400 rounded-full">
                         dnes
                       </span>
                     )}
                   </td>
-                  <td className="py-2.5 px-3 text-right">
+                  <td className="py-2 px-2 sm:py-2.5 sm:px-3 text-right">
                     {isEditing ? (
                       <input
                         ref={inputRef}
@@ -180,41 +180,41 @@ export default function WeightTable({ profile, entries, onUpdateEntry }: Props) 
                         onChange={(e) => setEditValue(e.target.value)}
                         onBlur={commitEdit}
                         onKeyDown={handleKeyDown}
-                        className="w-24 px-2 py-1 bg-gray-800 border border-emerald-500/50 rounded-lg text-right text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="w-20 sm:w-24 px-2 py-1 bg-gray-200 dark:bg-gray-800 border border-emerald-500/50 rounded-lg text-right text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                         onClick={(e) => e.stopPropagation()}
                       />
                     ) : entry.weight !== null ? (
-                      <span className="font-mono font-medium text-gray-100">
+                      <span className="font-mono font-medium text-gray-900 dark:text-gray-100 text-xs sm:text-sm">
                         {entry.weight.toFixed(1)} kg
                       </span>
                     ) : past ? (
-                      <span className="text-gray-600 italic">klikněte</span>
+                      <span className="text-gray-600 dark:text-gray-600 italic text-xs">klikněte</span>
                     ) : (
-                      <span className="text-gray-700">&mdash;</span>
+                      <span className="text-gray-700 dark:text-gray-700">&mdash;</span>
                     )}
                   </td>
-                  <td className="py-2.5 px-3 text-right">
+                  <td className="py-2 px-2 sm:py-2.5 sm:px-3 text-right">
                     {diff ? (
                       <span className={`font-mono text-xs font-medium ${diff.color}`}>{diff.text}</span>
                     ) : (
-                      <span className="text-gray-700">&mdash;</span>
+                      <span className="text-gray-700 dark:text-gray-700">&mdash;</span>
                     )}
                   </td>
-                  <td className="py-2.5 px-3 text-right">
+                  <td className="hidden sm:table-cell py-2 px-2 sm:py-2.5 sm:px-3 text-right">
                     <span className="font-mono text-xs text-indigo-400/60">{idealWeight.toFixed(1)}</span>
                   </td>
-                  <td className="py-2.5 px-3 text-right">
+                  <td className="hidden sm:table-cell py-2 px-2 sm:py-2.5 sm:px-3 text-right">
                     {vsIdeal !== null ? (
                       <span
                         className={`font-mono text-xs font-medium ${
-                          vsIdeal <= 0 ? "text-emerald-400" : "text-red-400"
+                          vsIdeal <= 0 ? "text-emerald-500 dark:text-emerald-400" : "text-red-400"
                         }`}
                       >
                         {vsIdeal > 0 ? "+" : ""}
                         {vsIdeal.toFixed(1)}
                       </span>
                     ) : (
-                      <span className="text-gray-700">&mdash;</span>
+                      <span className="text-gray-700 dark:text-gray-700">&mdash;</span>
                     )}
                   </td>
                 </tr>

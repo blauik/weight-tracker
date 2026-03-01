@@ -13,12 +13,14 @@ import {
 } from "recharts";
 import { DailyEntry } from "@/types";
 import { getFilledEntries } from "@/lib/calculations";
+import { useTheme } from "./ThemeProvider";
 
 interface Props {
   entries: DailyEntry[];
 }
 
 export default function WeeklyChart({ entries }: Props) {
+  const { theme } = useTheme();
   const filled = getFilledEntries(entries);
   if (filled.length < 7) return null;
 
@@ -64,33 +66,33 @@ export default function WeeklyChart({ entries }: Props) {
   if (weeks.length < 2) return null;
 
   return (
-    <div className="glass p-6 animate-slide-up">
+    <div className="glass p-4 sm:p-6 animate-slide-up">
       <div className="mb-4">
-        <h3 className="text-lg font-semibold text-gray-100">Týdenní změny</h3>
-        <p className="text-sm text-gray-500">Změna váhy za každý týden</p>
+        <h3 className="text-base sm:text-lg font-semibold text-gray-100">Týdenní změny</h3>
+        <p className="text-xs sm:text-sm text-gray-500">Změna váhy za každý týden</p>
       </div>
-      <div className="h-64">
+      <div className="h-48 sm:h-64">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={weeks} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-            <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} />
+          <BarChart data={weeks} margin={{ top: 5, right: 5, left: -15, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={theme === "dark" ? "#1f2937" : "#e5e7eb"} />
+            <XAxis dataKey="label" stroke={theme === "dark" ? "#6b7280" : "#9ca3af"} fontSize={11} tickLine={false} />
             <YAxis
-              stroke="#6b7280"
+              stroke={theme === "dark" ? "#6b7280" : "#9ca3af"}
               fontSize={11}
               tickLine={false}
               tickFormatter={(v) => `${v} kg`}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#111827",
-                border: "1px solid #374151",
+                backgroundColor: theme === "dark" ? "#111827" : "#ffffff",
+                border: `1px solid ${theme === "dark" ? "#374151" : "#e5e7eb"}`,
                 borderRadius: "12px",
                 fontSize: "13px",
-                color: "#e5e7eb",
+                color: theme === "dark" ? "#e5e7eb" : "#1f2937",
               }}
               formatter={(value: number) => [`${value} kg`, "Změna"]}
             />
-            <ReferenceLine y={0} stroke="#374151" />
+            <ReferenceLine y={0} stroke={theme === "dark" ? "#374151" : "#d1d5db"} />
             <Bar dataKey="change" radius={[6, 6, 0, 0]} maxBarSize={40}>
               {weeks.map((entry, index) => (
                 <Cell

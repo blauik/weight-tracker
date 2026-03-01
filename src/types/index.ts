@@ -56,3 +56,31 @@ export interface ProjectionData {
     avgWeeklyLoss: number;
   };
 }
+
+export interface AIPrediction {
+  predictions: Array<{
+    date: string;
+    optimistic: number;
+    realistic: number;
+    pessimistic: number;
+  }>;
+  estimatedGoalDate: {
+    optimistic: string | null;
+    realistic: string | null;
+    pessimistic: string | null;
+  };
+  confidence: number;
+  recentTrend: number;
+  overallTrend: number;
+}
+
+export interface WeeklyAverage {
+  weekNumber: number;           // 1, 2, 3, ...
+  label: string;                // "Týden 1", "Týden 2", ...
+  startDate: string;            // ISO string
+  endDate: string;              // ISO string
+  averageWeight: number;        // Average weight in kg
+  entryCount: number;           // Number of entries in this week
+  trend: "down" | "up" | "stable" | null;  // Trend compared to previous week
+  changeFromPrevious: number | null;  // Difference from previous week
+}

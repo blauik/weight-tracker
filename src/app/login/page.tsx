@@ -59,7 +59,7 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
             WeightFlow
           </h1>
-          <p className="text-gray-500 mt-1">Přihlaste se ke svému účtu</p>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">Přihlaste se ke svému účtu</p>
         </div>
 
         <div className="glass p-8 animate-slide-up">
@@ -71,7 +71,7 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
+              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                 Email
               </label>
               <input
@@ -86,7 +86,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
+              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                 Heslo
               </label>
               <input
@@ -109,11 +109,11 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-gray-500">
+          <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
             Nemáte účet?{" "}
             <Link
               href="/register"
-              className="text-emerald-400 hover:text-emerald-300 font-medium"
+              className="text-emerald-500 dark:text-emerald-400 hover:text-emerald-400 dark:hover:text-emerald-300 font-medium"
             >
               Zaregistrujte se
             </Link>
