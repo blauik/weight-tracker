@@ -27,7 +27,6 @@ zerops:
         DATABASE_URL: "postgresql://${db_user}:${db_password}@db:5432/db"
         NEXTAUTH_URL: "https://web-xdstv17ksf6rduj7emxgsw.prg1.zerops.app"
         NEXTAUTH_SECRET: "super-tajny-klic-pro-weight-tracker-app-2026"
-        HOSTNAME: "0.0.0.0"
       initCommands:
         - npx prisma db push --skip-generate --accept-data-loss
       start: npm start
