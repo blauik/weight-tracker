@@ -1,29 +1,21 @@
-import { withAuth } from "next-auth/middleware";
+import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token;
-    const isAuth = !!token;
-    const isAuthPage = req.nextUrl.pathname.startsWith("/login") ||
-                       req.nextUrl.pathname.startsWith("/register");
+export default auth((req) => {
+  const isAuth = !!req.auth;
+  const isAuthPage = req.nextUrl.pathname.startsWith("/login") ||
+                     req.nextUrl.pathname.startsWith("/register");
 
-    if (isAuthPage && isAuth) {
-      return NextResponse.redirect(new URL("/", req.url));
-    }
-
-    if (!isAuthPage && !isAuth) {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
-
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token,
-    },
+  if (isAuthPage && isAuth) {
+    return NextResponse.redirect(new URL("/", req.url));
   }
-);
+
+  if (!isAuthPage && !isAuth) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  return NextResponse.next();
+});
 
 export const config = {
   matcher: [
