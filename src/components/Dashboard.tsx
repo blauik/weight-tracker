@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { signOut } from "next-auth/react";
 import { UserProfile, DailyEntry } from "@/types";
 import { updateEntry, clearAll } from "@/lib/storage";
 import { calculateCalorieInfo, getFilledEntries, calculateTotalDays } from "@/lib/calculations";
@@ -78,12 +79,21 @@ export default function Dashboard({ profile, entries, setEntries, onReset }: Pro
               </div>
             </div>
 
-            <button
-              onClick={() => setShowResetConfirm(true)}
-              className="btn-secondary text-xs px-3 py-1.5"
-            >
-              Reset
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                className="btn-secondary text-xs px-3 py-1.5"
+              >
+                Odhlásit
+              </button>
+
+              <button
+                onClick={() => setShowResetConfirm(true)}
+                className="btn-secondary text-xs px-3 py-1.5"
+              >
+                Reset
+              </button>
+            </div>
           </div>
         </div>
       </header>
