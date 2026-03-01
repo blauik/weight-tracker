@@ -1,5 +1,5 @@
 zerops:
-  - setup: nextapp
+  - setup: app
     build:
       base: nodejs@20
       buildCommands:
