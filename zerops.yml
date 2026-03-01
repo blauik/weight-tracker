@@ -29,4 +29,4 @@ zerops:
         NEXTAUTH_SECRET: "super-tajny-klic-pro-weight-tracker-app-2026"
       initCommands:
         - npx prisma db push --skip-generate --accept-data-loss
-      start: npm start
+      start: npx next start -H 0.0.0.0 -p 3000
