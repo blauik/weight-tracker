@@ -13,20 +13,25 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const state = loadState();
-    if (state.profile) {
-      setProfile(state.profile);
-      setEntries(state.entries.length > 0 ? state.entries : generateInitialEntries(state.profile));
-    }
-    setLoading(false);
+    loadState().then((state) => {
+      if (state.profile) {
+        setProfile(state.profile);
+        setEntries(
+          state.entries.length > 0
+            ? state.entries
+            : generateInitialEntries(state.profile)
+        );
+      }
+      setLoading(false);
+    });
   }, []);
 
-  const handleOnboardingComplete = (newProfile: UserProfile) => {
+  const handleOnboardingComplete = async (newProfile: UserProfile) => {
     const initialEntries = generateInitialEntries(newProfile);
     setProfile(newProfile);
     setEntries(initialEntries);
-    saveProfile(newProfile);
-    saveEntries(initialEntries);
+    await saveProfile(newProfile);
+    await saveEntries(initialEntries);
   };
 
   const handleReset = () => {

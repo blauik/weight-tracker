@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { UserProfile, DailyEntry } from "@/types";
-import { saveEntries, clearAll } from "@/lib/storage";
+import { updateEntry, clearAll } from "@/lib/storage";
 import { calculateCalorieInfo, getFilledEntries, calculateTotalDays } from "@/lib/calculations";
 import WeightChart from "./WeightChart";
 import WeeklyChart from "./WeeklyChart";
@@ -27,13 +27,13 @@ export default function Dashboard({ profile, entries, setEntries, onReset }: Pro
     (date: string, weight: number | null) => {
       const updated = entries.map((e) => (e.date === date ? { ...e, weight } : e));
       setEntries(updated);
-      saveEntries(updated);
+      updateEntry(date, weight);
     },
     [entries, setEntries]
   );
 
-  const handleReset = () => {
-    clearAll();
+  const handleReset = async () => {
+    await clearAll();
     onReset();
     setShowResetConfirm(false);
   };

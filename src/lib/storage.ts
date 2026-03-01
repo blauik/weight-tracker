@@ -1,41 +1,47 @@
 import { AppState, UserProfile, DailyEntry } from "@/types";
 
-const STORAGE_KEY = "weight-tracker-app";
-
-export function loadState(): AppState {
-  if (typeof window === "undefined") return { profile: null, entries: [] };
+export async function loadState(): Promise<AppState> {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { profile: null, entries: [] };
-    return JSON.parse(raw);
+    const res = await fetch("/api/state");
+    if (!res.ok) throw new Error("Failed to load state");
+    return await res.json();
   } catch {
     return { profile: null, entries: [] };
   }
 }
 
-export function saveState(state: AppState): void {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+export async function saveProfile(profile: UserProfile): Promise<void> {
+  await fetch("/api/profile", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(profile),
+  });
 }
 
-export function saveProfile(profile: UserProfile): void {
-  const state = loadState();
-  state.profile = profile;
-  saveState(state);
+export async function saveEntries(entries: DailyEntry[]): Promise<void> {
+  await fetch("/api/entries", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(entries),
+  });
 }
 
-export function saveEntries(entries: DailyEntry[]): void {
-  const state = loadState();
-  state.entries = entries;
-  saveState(state);
+export async function updateEntry(
+  date: string,
+  weight: number | null
+): Promise<void> {
+  await fetch("/api/entries", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ date, weight }),
+  });
 }
 
-export function clearAll(): void {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem(STORAGE_KEY);
+export async function clearAll(): Promise<void> {
+  await fetch("/api/state", { method: "DELETE" });
 }
 
-export function exportData(): string {
-  const state = loadState();
+export async function exportData(): Promise<string> {
+  const state = await loadState();
   return JSON.stringify(state, null, 2);
 }

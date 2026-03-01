@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id            Int      @id @default(1)
+  name          String
+  gender        String
+  age           Int
+  heightCm      Int
+  startWeight   Float
+  targetWeight  Float
+  activityLevel String
+  startDate     String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model DailyEntry {
+  id     Int     @id @default(autoincrement())
+  date   String  @unique
+  weight Float?
+  note   String?
+}
