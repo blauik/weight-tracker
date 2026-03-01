@@ -215,3 +215,19 @@ export function getDayOfWeek(dateStr: string): string {
   const d = new Date(dateStr);
   return d.toLocaleDateString("cs-CZ", { weekday: "short" });
 }
+
+/**
+ * Calculate total calories needed to burn to reach target weight
+ */
+export function calculateTotalCaloriesToBurn(profile: UserProfile): number {
+  const totalKgToLose = profile.startWeight - profile.targetWeight;
+  return Math.round(totalKgToLose * KCAL_PER_KG);
+}
+
+/**
+ * Calculate calories already burned based on current weight
+ */
+export function calculateCaloriesBurned(profile: UserProfile, currentWeight: number): number {
+  const kgLost = profile.startWeight - currentWeight;
+  return Math.round(Math.max(0, kgLost * KCAL_PER_KG));
+}

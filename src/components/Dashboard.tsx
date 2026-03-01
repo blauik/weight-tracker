@@ -4,7 +4,13 @@ import { useState, useCallback } from "react";
 import { signOut } from "next-auth/react";
 import { UserProfile, DailyEntry } from "@/types";
 import { updateEntry, clearAll } from "@/lib/storage";
-import { calculateCalorieInfo, getFilledEntries, calculateTotalDays } from "@/lib/calculations";
+import {
+  calculateCalorieInfo,
+  getFilledEntries,
+  calculateTotalDays,
+  calculateTotalCaloriesToBurn,
+  calculateCaloriesBurned
+} from "@/lib/calculations";
 import WeightChart from "./WeightChart";
 import WeeklyChart from "./WeeklyChart";
 import WeightTable from "./WeightTable";
@@ -23,6 +29,10 @@ export default function Dashboard({ profile, entries, setEntries, onReset }: Pro
   const latestWeight = filled.length > 0 ? filled[filled.length - 1].weight! : profile.startWeight;
   const calorieInfo = calculateCalorieInfo(profile, latestWeight);
   const totalDays = calculateTotalDays(profile);
+
+  // Calculate total and burned calories
+  const totalCaloriesToBurn = calculateTotalCaloriesToBurn(profile);
+  const caloriesBurned = calculateCaloriesBurned(profile, latestWeight);
 
   const handleUpdateEntry = useCallback(
     (date: string, weight: number | null) => {
@@ -101,7 +111,7 @@ export default function Dashboard({ profile, entries, setEntries, onReset }: Pro
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-fade-in">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 animate-fade-in">
           <div className="stat-card glass-sm">
             <span className="stat-label">Start</span>
             <span className="stat-value text-lg">{profile.startWeight} kg</span>
@@ -114,6 +124,15 @@ export default function Dashboard({ profile, entries, setEntries, onReset }: Pro
             <span className="stat-label">Celkem shodit</span>
             <span className="stat-value text-lg text-emerald-400">
               {(profile.startWeight - profile.targetWeight).toFixed(1)} kg
+            </span>
+          </div>
+          <div className="stat-card glass-sm">
+            <span className="stat-label">Kalorie</span>
+            <span className="stat-value text-sm text-cyan-400">
+              {caloriesBurned.toLocaleString()} / {totalCaloriesToBurn.toLocaleString()}
+            </span>
+            <span className="text-xs text-gray-500 mt-0.5">
+              spáleno / celkem
             </span>
           </div>
           <div className="stat-card glass-sm">
