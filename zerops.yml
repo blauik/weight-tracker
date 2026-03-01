@@ -1,0 +1,29 @@
+zerops:
+  - setup: app
+    build:
+      base: nodejs@20
+      prepareCommands:
+        - npm ci
+      buildCommands:
+        - npm run build
+      deployFiles:
+        - .next/standalone
+        - .next/static
+        - public
+        - package.json
+      cache:
+        - node_modules
+        - .next/cache
+      envVariables:
+        NODE_ENV: production
+
+    run:
+      base: nodejs@20
+      ports:
+        - port: 3000
+          httpSupport: true
+      start: node .next/standalone/server.js
+      envVariables:
+        NODE_ENV: production
+        HOSTNAME: "0.0.0.0"
+        PORT: "3000"
