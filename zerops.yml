@@ -7,14 +7,7 @@ zerops:
         - npm i
         - npx prisma generate
         - NEXTAUTH_SECRET=build-secret npm run build
-      deployFiles:
-        - .next
-        - package.json
-        - package-lock.json
-        - node_modules
-        - public
-        - next.config.js
-        - prisma
+      deployFiles: ./
       cache:
         - node_modules
         - package-lock.json
@@ -25,7 +18,7 @@ zerops:
           httpSupport: true
       envVariables:
         DATABASE_URL: "postgresql://${db_user}:${db_password}@db:5432/db"
-        NEXTAUTH_URL: "https://web-xdstv17ksf6rduj7emxgsw.prg1.zerops.app"
+        NEXTAUTH_URL: "https://app-jbrogorprxilanxt8jlkga.prg1.zerops.app"
         NEXTAUTH_SECRET: "super-tajny-klic-pro-weight-tracker-app-2026"
       initCommands:
         - npx prisma db push --skip-generate --accept-data-loss
