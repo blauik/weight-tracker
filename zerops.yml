@@ -6,7 +6,7 @@ zerops:
         - rm -rf node_modules
         - npm i
         - npx prisma generate
-        - NEXTAUTH_SECRET=build-secret npm run build
+        - NEXTAUTH_SECRET=super-tajny-klic-pro-weight-tracker-app-2026 npm run build
       deployFiles: ./
       cache:
         - node_modules
