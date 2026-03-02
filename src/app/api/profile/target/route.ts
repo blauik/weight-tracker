@@ -63,7 +63,18 @@ export async function PATCH(req: NextRequest) {
       note: index === 0 ? "Výchozí váha" : (existingWeightsMap.get(date)?.note ?? null),
     }));
 
-    // 8. Atomic transaction: update profile + delete old entries + create new ones
+    // 8. First, delete entries that are no longer in the new range
+    const newDateSet = new Set(newDates);
+    await prisma.dailyEntry.deleteMany({
+      where: {
+        userId: user.id,
+        date: {
+          notIn: newDates,
+        },
+      },
+    });
+
+    // 9. Update profile and upsert all entries in transaction
     await prisma.$transaction(async (tx) => {
       // Update profile
       await tx.profile.update({
@@ -71,20 +82,31 @@ export async function PATCH(req: NextRequest) {
         data: { targetWeight: newTargetWeight },
       });
 
-      // Delete all old entries
-      await tx.dailyEntry.deleteMany({
-        where: { userId: user.id },
-      });
+      // Upsert each entry (insert or update)
+      for (const entry of newEntries) {
+        const data: any = {
+          weight: entry.weight,
+        };
+        // Only include note if it's not null
+        if (entry.note !== null) {
+          data.note = entry.note;
+        }
 
-      // Create new entries
-      await tx.dailyEntry.createMany({
-        data: newEntries.map((e) => ({
-          userId: user.id,
-          date: e.date,
-          weight: e.weight,
-          note: e.note ?? undefined,
-        })),
-      });
+        await tx.dailyEntry.upsert({
+          where: {
+            userId_date: {
+              userId: user.id,
+              date: entry.date,
+            },
+          },
+          update: data,
+          create: {
+            userId: user.id,
+            date: entry.date,
+            ...data,
+          },
+        });
+      }
     });
 
     return NextResponse.json({ success: true });
