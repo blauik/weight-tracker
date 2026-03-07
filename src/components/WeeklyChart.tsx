@@ -25,43 +25,30 @@ export default function WeeklyChart({ entries }: Props) {
   if (filled.length < 7) return null;
 
   // Group entries by week
-  const weeks: { label: string; change: number; avgWeight: number }[] = [];
   const startDate = new Date(filled[0].date);
+  const weekGroups = new Map<number, DailyEntry[]>();
 
-  let weekEntries: DailyEntry[] = [];
   for (const entry of filled) {
     const daysSinceStart = Math.floor(
       (new Date(entry.date).getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
     );
     const weekNum = Math.floor(daysSinceStart / 7);
-
-    while (weeks.length <= weekNum) {
-      if (weekEntries.length > 0) {
-        const firstW = weekEntries[0].weight!;
-        const lastW = weekEntries[weekEntries.length - 1].weight!;
-        const avg = weekEntries.reduce((s, e) => s + e.weight!, 0) / weekEntries.length;
-        weeks.push({
-          label: `T${weeks.length + 1}`,
-          change: Math.round((lastW - firstW) * 100) / 100,
-          avgWeight: Math.round(avg * 100) / 100,
-        });
-      }
-      weekEntries = [];
-    }
-    weekEntries.push(entry);
+    if (!weekGroups.has(weekNum)) weekGroups.set(weekNum, []);
+    weekGroups.get(weekNum)!.push(entry);
   }
 
-  // Push last week
-  if (weekEntries.length > 0) {
-    const firstW = weekEntries[0].weight!;
-    const lastW = weekEntries[weekEntries.length - 1].weight!;
-    const avg = weekEntries.reduce((s, e) => s + e.weight!, 0) / weekEntries.length;
-    weeks.push({
-      label: `T${weeks.length + 1}`,
-      change: Math.round((lastW - firstW) * 100) / 100,
-      avgWeight: Math.round(avg * 100) / 100,
+  const weeks = Array.from(weekGroups.entries())
+    .sort(([a], [b]) => a - b)
+    .map(([weekNum, weekEntries]) => {
+      const firstW = weekEntries[0].weight!;
+      const lastW = weekEntries[weekEntries.length - 1].weight!;
+      const avg = weekEntries.reduce((s, e) => s + e.weight!, 0) / weekEntries.length;
+      return {
+        label: `T${weekNum + 1}`,
+        change: Math.round((lastW - firstW) * 100) / 100,
+        avgWeight: Math.round(avg * 100) / 100,
+      };
     });
-  }
 
   if (weeks.length < 2) return null;
 
