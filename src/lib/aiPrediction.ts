@@ -2,52 +2,46 @@ import { UserProfile, DailyEntry, AIPrediction } from "@/types";
 import { getFilledEntries } from "./calculations";
 
 /**
- * Solve quadratic regression using least squares method
- * Returns coefficients for y = a*x^2 + b*x + c
+ * Weighted linear regression — recent data points have more influence.
+ * Returns slope and intercept for y = slope * x + intercept
  */
-function solveQuadraticFit(xs: number[], ys: number[]): { a: number; b: number; c: number } {
+function weightedLinearRegression(
+  xs: number[],
+  ys: number[],
+  decayFactor: number = 0.95
+): { slope: number; intercept: number } {
   const n = xs.length;
-  let sx = 0, sx2 = 0, sx3 = 0, sx4 = 0;
-  let sy = 0, sxy = 0, sx2y = 0;
 
+  // Exponential weights: most recent point has weight 1, earlier points decay
+  const weights: number[] = [];
   for (let i = 0; i < n; i++) {
-    const x = xs[i], y = ys[i];
-    sx += x;
-    sx2 += x * x;
-    sx3 += x * x * x;
-    sx4 += x * x * x * x;
-    sy += y;
-    sxy += x * y;
-    sx2y += x * x * y;
+    weights.push(Math.pow(decayFactor, n - 1 - i));
   }
 
-  // Solve system of equations using Cramer's rule:
-  // | sx4 sx3 sx2 | |a|   |sx2y|
-  // | sx3 sx2 sx  | |b| = |sxy |
-  // | sx2 sx  n   | |c|   |sy  |
-
-  const det = sx4 * (sx2 * n - sx * sx) - sx3 * (sx3 * n - sx * sx2) + sx2 * (sx3 * sx - sx2 * sx2);
-
-  if (Math.abs(det) < 0.0001) {
-    // Fallback to linear if determinant too small
-    const slope = (n * sxy - sx * sy) / (n * sx2 - sx * sx);
-    const intercept = (sy - slope * sx) / n;
-    return { a: 0, b: slope, c: intercept };
+  let wSum = 0, wxSum = 0, wySum = 0, wxySum = 0, wxxSum = 0;
+  for (let i = 0; i < n; i++) {
+    const w = weights[i];
+    wSum += w;
+    wxSum += w * xs[i];
+    wySum += w * ys[i];
+    wxySum += w * xs[i] * ys[i];
+    wxxSum += w * xs[i] * xs[i];
   }
 
-  const detA = sx2y * (sx2 * n - sx * sx) - sxy * (sx3 * n - sx * sx2) + sy * (sx3 * sx - sx2 * sx2);
-  const detB = sx4 * (sxy * n - sy * sx) - sx3 * (sx2y * n - sy * sx2) + sx2 * (sx2y * sx - sxy * sx2);
-  const detC = sx4 * (sx2 * sy - sx * sxy) - sx3 * (sx3 * sy - sx * sx2y) + sx2 * (sx3 * sxy - sx2 * sx2y);
+  const denom = wSum * wxxSum - wxSum * wxSum;
+  if (Math.abs(denom) < 1e-10) {
+    // Flat line
+    return { slope: 0, intercept: wySum / wSum };
+  }
 
-  return {
-    a: detA / det,
-    b: detB / det,
-    c: detC / det,
-  };
+  const slope = (wSum * wxySum - wxSum * wySum) / denom;
+  const intercept = (wySum - slope * wxSum) / wSum;
+
+  return { slope, intercept };
 }
 
 /**
- * Calculate AI-powered weight prediction using polynomial regression
+ * Calculate AI-powered weight prediction using weighted linear regression
  */
 export function calculateAIPrediction(
   profile: UserProfile,
@@ -67,21 +61,28 @@ export function calculateAIPrediction(
     ys.push(entry.weight!);
   });
 
-  // Fit quadratic regression
-  const { a, b, c } = solveQuadraticFit(xs, ys);
+  // Use weighted linear regression (recent data weighted more)
+  const { slope, intercept } = weightedLinearRegression(xs, ys);
 
-  // Calculate R-squared (coefficient of determination)
+  // Calculate R-squared
   const yMean = ys.reduce((sum, y) => sum + y, 0) / ys.length;
   let ssTot = 0, ssRes = 0;
 
   for (let i = 0; i < xs.length; i++) {
-    const yPred = a * xs[i] * xs[i] + b * xs[i] + c;
+    const yPred = slope * xs[i] + intercept;
     const yActual = ys[i];
     ssTot += (yActual - yMean) ** 2;
     ssRes += (yActual - yPred) ** 2;
   }
 
-  const rSquared = Math.max(0, Math.min(1, 1 - (ssRes / ssTot)));
+  const rSquared = ssTot > 0 ? Math.max(0, Math.min(1, 1 - (ssRes / ssTot))) : 0;
+
+  // Penalize confidence when data is sparse
+  const dataRangeDays = xs[xs.length - 1] - xs[0];
+  const dataDensity = filled.length / Math.max(1, dataRangeDays);
+  const densityPenalty = Math.min(1, dataDensity); // 1.0 = daily, 0.5 = every other day
+  const dataAmountPenalty = Math.min(1, filled.length / 14); // Full confidence at 14+ entries
+  const confidence = rSquared * densityPenalty * dataAmountPenalty;
 
   // Calculate recent trend (last 14 days)
   const recentDays = Math.min(14, filled.length);
@@ -91,24 +92,19 @@ export function calculateAIPrediction(
   );
   const recentYs = recentEntries.map(e => e.weight!);
 
-  const n = recentXs.length;
-  const sumX = recentXs.reduce((a, b) => a + b, 0);
-  const sumY = recentYs.reduce((a, b) => a + b, 0);
-  const sumXY = recentXs.reduce((sum, x, i) => sum + x * recentYs[i], 0);
-  const sumXX = recentXs.reduce((sum, x) => sum + x * x, 0);
+  const recentReg = weightedLinearRegression(recentXs, recentYs, 0.9);
+  const recentTrend = -recentReg.slope; // Positive = losing weight
+  const overallTrend = -slope;
 
-  const recentSlope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-  const recentTrend = -recentSlope; // Negative because we want weight loss
+  // Scale prediction range based on available data
+  // Don't predict further than 2x the data range, max 30 days
+  const maxPredictionDays = Math.min(30, Math.max(7, Math.round(dataRangeDays * 2)));
 
-  // Overall trend
-  const allSumX = xs.reduce((a, b) => a + b, 0);
-  const allSumY = ys.reduce((a, b) => a + b, 0);
-  const allSumXY = xs.reduce((sum, x, i) => sum + x * ys[i], 0);
-  const allSumXX = xs.reduce((sum, x) => sum + x * x, 0);
-  const allSlope = (xs.length * allSumXY - allSumX * allSumY) / (xs.length * allSumXX - allSumX * allSumX);
-  const overallTrend = -allSlope;
+  // Sanity bounds
+  const maxWeight = Math.max(profile.startWeight, ...ys) + 2;
+  const minWeight = profile.targetWeight;
 
-  // Generate predictions for next 30 days
+  // Generate predictions
   const lastDayNum = xs[xs.length - 1];
   const predictions: Array<{
     date: string;
@@ -117,24 +113,30 @@ export function calculateAIPrediction(
     pessimistic: number;
   }> = [];
 
-  for (let i = 1; i <= 30; i++) {
+  for (let i = 1; i <= maxPredictionDays; i++) {
     const dayNum = lastDayNum + i;
-    const realistic = a * dayNum * dayNum + b * dayNum + c;
+    let realistic = slope * dayNum + intercept;
 
-    // Optimistic: 20% faster weight loss
-    const optimistic = realistic - (profile.startWeight - realistic) * 0.2;
+    // Clamp to sanity bounds
+    realistic = Math.max(minWeight, Math.min(maxWeight, realistic));
 
-    // Pessimistic: 30% slower weight loss
-    const pessimistic = realistic + (profile.startWeight - realistic) * 0.3;
+    // Optimistic: 20% steeper loss from current weight
+    const dailyLoss = Math.max(0, -slope);
+    let optimistic = realistic - dailyLoss * i * 0.2;
+    optimistic = Math.max(minWeight, Math.min(maxWeight, optimistic));
+
+    // Pessimistic: 30% slower loss
+    let pessimistic = realistic + dailyLoss * i * 0.3;
+    pessimistic = Math.max(minWeight, Math.min(maxWeight, pessimistic));
 
     const d = new Date(startTime + dayNum * 24 * 60 * 60 * 1000);
     const dateStr = d.toISOString().split('T')[0];
 
     predictions.push({
       date: dateStr,
-      optimistic: Math.max(profile.targetWeight, Math.round(optimistic * 100) / 100),
-      realistic: Math.max(profile.targetWeight, Math.round(realistic * 100) / 100),
-      pessimistic: Math.max(profile.targetWeight, Math.round(pessimistic * 100) / 100),
+      optimistic: Math.round(optimistic * 100) / 100,
+      realistic: Math.round(realistic * 100) / 100,
+      pessimistic: Math.round(pessimistic * 100) / 100,
     });
   }
 
@@ -155,7 +157,7 @@ export function calculateAIPrediction(
       realistic: findGoalDate('realistic'),
       pessimistic: findGoalDate('pessimistic'),
     },
-    confidence: rSquared,
+    confidence,
     recentTrend,
     overallTrend,
   };

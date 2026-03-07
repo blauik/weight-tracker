@@ -142,6 +142,7 @@ export default function WeightChart({ profile, entries }: Props) {
               dataKey="weight"
               fill="url(#weightGradient)"
               stroke="none"
+              legendType="none"
             />
             <Line
               type="monotone"
